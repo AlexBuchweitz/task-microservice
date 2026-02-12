@@ -31,7 +31,7 @@ public class TasksController : ControllerBase
         var task = new TaskItem
         {
             Title = request.Title,
-            Status = request.Status ?? "To Do"
+            Status = request.Status ?? TaskStatuses.ToDo
         };
 
         await _repository.AddAsync(task);

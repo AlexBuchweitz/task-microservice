@@ -33,13 +33,13 @@ public class TasksControllerTests
         var task = Assert.IsType<TaskItem>(createdResult.Value);
         Assert.Equal("Test task", task.Title);
 
-        await _repository.Received(1).AddAsync(Arg.Is<TaskItem>(t => t.Title == "Test task" && t.Status == "To Do"));
+        await _repository.Received(1).AddAsync(Arg.Is<TaskItem>(t => t.Title == "Test task" && t.Status == TaskStatuses.ToDo));
     }
 
     [Fact]
     public async Task Create_WithCustomStatus_PreservesStatus()
     {
-        var request = new CreateTaskRequest { Title = "Urgent task", Status = "In Progress" };
+        var request = new CreateTaskRequest { Title = "Urgent task", Status = TaskStatuses.InProgress };
 
         _repository.AddAsync(Arg.Any<TaskItem>())
             .Returns(ci => ci.Arg<TaskItem>());
@@ -48,9 +48,9 @@ public class TasksControllerTests
 
         var createdResult = Assert.IsType<CreatedAtActionResult>(result);
         var task = Assert.IsType<TaskItem>(createdResult.Value);
-        Assert.Equal("In Progress", task.Status);
+        Assert.Equal(TaskStatuses.InProgress, task.Status);
 
-        await _repository.Received(1).AddAsync(Arg.Is<TaskItem>(t => t.Title == "Urgent task" && t.Status == "In Progress"));
+        await _repository.Received(1).AddAsync(Arg.Is<TaskItem>(t => t.Title == "Urgent task" && t.Status == TaskStatuses.InProgress));
     }
 
     [Fact]
@@ -65,15 +65,15 @@ public class TasksControllerTests
 
         var createdResult = Assert.IsType<CreatedAtActionResult>(result);
         var task = Assert.IsType<TaskItem>(createdResult.Value);
-        Assert.Equal("To Do", task.Status);
+        Assert.Equal(TaskStatuses.ToDo, task.Status);
 
-        await _repository.Received(1).AddAsync(Arg.Is<TaskItem>(t => t.Title == "Simple task" && t.Status == "To Do"));
+        await _repository.Received(1).AddAsync(Arg.Is<TaskItem>(t => t.Title == "Simple task" && t.Status == TaskStatuses.ToDo));
     }
 
     [Fact]
     public async Task GetById_ExistingId_Returns200WithTask()
     {
-        var expected = new TaskItem { Id = 1, Title = "Test task", Status = "To Do" };
+        var expected = new TaskItem { Id = 1, Title = "Test task", Status = TaskStatuses.ToDo };
         _repository.GetByIdAsync(1).Returns(expected);
 
         var result = await _controller.GetById(1);

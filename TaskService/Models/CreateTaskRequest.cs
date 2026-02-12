@@ -8,6 +8,6 @@ public class CreateTaskRequest
     [StringLength(200)]
     public string Title { get; set; } = string.Empty;
 
-    [AllowedValues("To Do", "In Progress", "Done")]
+    [AllowedValues(TaskStatuses.ToDo, TaskStatuses.InProgress, TaskStatuses.Done)]
     public string? Status { get; set; }
 }
