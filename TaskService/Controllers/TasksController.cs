@@ -28,9 +28,16 @@ public class TasksController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreateTaskRequest request)
     {
+        var title = request.Title.Trim();
+        if (title.Length == 0)
+        {
+            ModelState.AddModelError(nameof(request.Title), "Title must contain at least one non-whitespace character.");
+            return ValidationProblem();
+        }
+
         var task = new TaskItem
         {
-            Title = request.Title,
+            Title = title,
             Status = request.Status ?? TaskStatuses.ToDo
         };
 

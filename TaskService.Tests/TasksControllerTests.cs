@@ -82,6 +82,39 @@ public class TasksControllerTests
         var task = Assert.IsType<TaskItem>(okResult.Value);
         Assert.Equal(1, task.Id);
         Assert.Equal("Test task", task.Title);
+        Assert.Equal(TaskStatuses.ToDo, task.Status);
+    }
+
+    [Fact]
+    public async Task Create_TitleWithWhitespace_IsTrimmed()
+    {
+        var request = new CreateTaskRequest { Title = "  My Task  " };
+
+        _repository.AddAsync(Arg.Any<TaskItem>())
+            .Returns(ci => ci.Arg<TaskItem>());
+
+        var result = await _controller.Create(request);
+
+        var createdResult = Assert.IsType<CreatedAtActionResult>(result);
+        var task = Assert.IsType<TaskItem>(createdResult.Value);
+        Assert.Equal("My Task", task.Title);
+
+        await _repository.Received(1).AddAsync(Arg.Is<TaskItem>(t => t.Title == "My Task"));
+    }
+
+    [Theory]
+    [InlineData("   ")]
+    [InlineData("\t")]
+    [InlineData("\n")]
+    [InlineData(" \t \n ")]
+    public async Task Create_WhitespaceOnlyTitle_ReturnsValidationProblem(string title)
+    {
+        var request = new CreateTaskRequest { Title = title };
+
+        var result = await _controller.Create(request);
+
+        Assert.IsType<ObjectResult>(result);
+        await _repository.DidNotReceive().AddAsync(Arg.Any<TaskItem>());
     }
 
     [Fact]
