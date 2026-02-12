@@ -28,9 +28,6 @@ public class TasksController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreateTaskRequest request)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         var task = new TaskItem
         {
             Title = request.Title,

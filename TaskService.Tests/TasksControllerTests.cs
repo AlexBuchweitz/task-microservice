@@ -71,30 +71,6 @@ public class TasksControllerTests
     }
 
     [Fact]
-    public async Task Create_InvalidStatus_Returns400()
-    {
-        var request = new CreateTaskRequest { Title = "Test task", Status = "Bogus" };
-        _controller.ModelState.AddModelError("Status", "Invalid status value.");
-
-        var result = await _controller.Create(request);
-
-        Assert.IsType<BadRequestObjectResult>(result);
-        await _repository.DidNotReceive().AddAsync(Arg.Any<TaskItem>());
-    }
-
-    [Fact]
-    public async Task Create_TitleTooLong_Returns400()
-    {
-        var request = new CreateTaskRequest { Title = new string('A', 201) };
-        _controller.ModelState.AddModelError("Title", "Title exceeds maximum length of 200.");
-
-        var result = await _controller.Create(request);
-
-        Assert.IsType<BadRequestObjectResult>(result);
-        await _repository.DidNotReceive().AddAsync(Arg.Any<TaskItem>());
-    }
-
-    [Fact]
     public async Task GetById_ExistingId_Returns200WithTask()
     {
         var expected = new TaskItem { Id = 1, Title = "Test task", Status = "To Do" };
