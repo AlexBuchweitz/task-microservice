@@ -28,10 +28,13 @@ public class TasksController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreateTaskRequest request)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
         var task = new TaskItem
         {
             Title = request.Title,
-            Status = request.Status ?? "Pending"
+            Status = request.Status ?? "To Do"
         };
 
         await _repository.AddAsync(task);

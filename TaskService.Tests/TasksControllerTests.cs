@@ -33,13 +33,13 @@ public class TasksControllerTests
         var task = Assert.IsType<TaskItem>(createdResult.Value);
         Assert.Equal("Test task", task.Title);
 
-        await _repository.Received(1).AddAsync(Arg.Any<TaskItem>());
+        await _repository.Received(1).AddAsync(Arg.Is<TaskItem>(t => t.Title == "Test task" && t.Status == "To Do"));
     }
 
     [Fact]
     public async Task Create_WithCustomStatus_PreservesStatus()
     {
-        var request = new CreateTaskRequest { Title = "Urgent task", Status = "InProgress" };
+        var request = new CreateTaskRequest { Title = "Urgent task", Status = "In Progress" };
 
         _repository.AddAsync(Arg.Any<TaskItem>())
             .Returns(ci => ci.Arg<TaskItem>());
@@ -48,11 +48,13 @@ public class TasksControllerTests
 
         var createdResult = Assert.IsType<CreatedAtActionResult>(result);
         var task = Assert.IsType<TaskItem>(createdResult.Value);
-        Assert.Equal("InProgress", task.Status);
+        Assert.Equal("In Progress", task.Status);
+
+        await _repository.Received(1).AddAsync(Arg.Is<TaskItem>(t => t.Title == "Urgent task" && t.Status == "In Progress"));
     }
 
     [Fact]
-    public async Task Create_WithNoStatus_DefaultsToPending()
+    public async Task Create_WithNoStatus_DefaultsToToDo()
     {
         var request = new CreateTaskRequest { Title = "Simple task" };
 
@@ -63,13 +65,39 @@ public class TasksControllerTests
 
         var createdResult = Assert.IsType<CreatedAtActionResult>(result);
         var task = Assert.IsType<TaskItem>(createdResult.Value);
-        Assert.Equal("Pending", task.Status);
+        Assert.Equal("To Do", task.Status);
+
+        await _repository.Received(1).AddAsync(Arg.Is<TaskItem>(t => t.Title == "Simple task" && t.Status == "To Do"));
+    }
+
+    [Fact]
+    public async Task Create_InvalidStatus_Returns400()
+    {
+        var request = new CreateTaskRequest { Title = "Test task", Status = "Bogus" };
+        _controller.ModelState.AddModelError("Status", "Invalid status value.");
+
+        var result = await _controller.Create(request);
+
+        Assert.IsType<BadRequestObjectResult>(result);
+        await _repository.DidNotReceive().AddAsync(Arg.Any<TaskItem>());
+    }
+
+    [Fact]
+    public async Task Create_TitleTooLong_Returns400()
+    {
+        var request = new CreateTaskRequest { Title = new string('A', 201) };
+        _controller.ModelState.AddModelError("Title", "Title exceeds maximum length of 200.");
+
+        var result = await _controller.Create(request);
+
+        Assert.IsType<BadRequestObjectResult>(result);
+        await _repository.DidNotReceive().AddAsync(Arg.Any<TaskItem>());
     }
 
     [Fact]
     public async Task GetById_ExistingId_Returns200WithTask()
     {
-        var expected = new TaskItem { Id = 1, Title = "Test task", Status = "Pending" };
+        var expected = new TaskItem { Id = 1, Title = "Test task", Status = "To Do" };
         _repository.GetByIdAsync(1).Returns(expected);
 
         var result = await _controller.GetById(1);
