@@ -19,4 +19,9 @@ public class TaskRepository : ITaskRepository
         await _db.SaveChangesAsync();
         return task;
     }
+
+    public async Task<TaskItem?> GetByIdAsync(int id)
+    {
+        return await _db.Tasks.FindAsync(id);
+    }
 }

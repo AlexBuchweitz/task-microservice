@@ -15,6 +15,16 @@ public class TasksController : ControllerBase
         _repository = repository;
     }
 
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var task = await _repository.GetByIdAsync(id);
+        if (task is null)
+            return NotFound();
+
+        return Ok(task);
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create(CreateTaskRequest request)
     {
@@ -26,6 +36,6 @@ public class TasksController : ControllerBase
 
         await _repository.AddAsync(task);
 
-        return CreatedAtAction(nameof(Create), new { id = task.Id }, task);
+        return CreatedAtAction(nameof(GetById), new { id = task.Id }, task);
     }
 }

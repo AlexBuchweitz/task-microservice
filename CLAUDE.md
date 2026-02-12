@@ -17,4 +17,6 @@
 - Build: `dotnet build TaskService.slnx`
 - Test: `dotnet test TaskService.slnx`
 - Run: `dotnet run --project TaskService`
-- API endpoint: `POST /api/tasks` with JSON body `{ "title": "...", "status": "..." }`
+- API endpoints:
+  - `POST /api/tasks` with JSON body `{ "title": "...", "status": "..." }`
+  - `GET /api/tasks/{id}` — returns a task by ID

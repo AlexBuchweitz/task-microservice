@@ -65,4 +65,28 @@ public class TasksControllerTests
         var task = Assert.IsType<TaskItem>(createdResult.Value);
         Assert.Equal("Pending", task.Status);
     }
+
+    [Fact]
+    public async Task GetById_ExistingId_Returns200WithTask()
+    {
+        var expected = new TaskItem { Id = 1, Title = "Test task", Status = "Pending" };
+        _repository.GetByIdAsync(1).Returns(expected);
+
+        var result = await _controller.GetById(1);
+
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var task = Assert.IsType<TaskItem>(okResult.Value);
+        Assert.Equal(1, task.Id);
+        Assert.Equal("Test task", task.Title);
+    }
+
+    [Fact]
+    public async Task GetById_NonExistentId_Returns404()
+    {
+        _repository.GetByIdAsync(999).Returns((TaskItem?)null);
+
+        var result = await _controller.GetById(999);
+
+        Assert.IsType<NotFoundResult>(result);
+    }
 }
