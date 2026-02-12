@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using TaskService.Data;
+using TaskService.Interfaces;
 using TaskService.Models;
 
 namespace TaskService.Controllers;
@@ -8,11 +8,11 @@ namespace TaskService.Controllers;
 [Route("api/[controller]")]
 public class TasksController : ControllerBase
 {
-    private readonly AppDbContext _db;
+    private readonly ITaskRepository _repository;
 
-    public TasksController(AppDbContext db)
+    public TasksController(ITaskRepository repository)
     {
-        _db = db;
+        _repository = repository;
     }
 
     [HttpPost]
@@ -24,8 +24,7 @@ public class TasksController : ControllerBase
             Status = request.Status ?? "Pending"
         };
 
-        _db.Tasks.Add(task);
-        await _db.SaveChangesAsync();
+        await _repository.AddAsync(task);
 
         return CreatedAtAction(nameof(Create), new { id = task.Id }, task);
     }
