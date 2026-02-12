@@ -11,7 +11,7 @@
 ## Architecture
 - **Repository pattern:** Controllers depend on `ITaskRepository` (in `Interfaces/`), implemented by `TaskRepository` (in `Repositories/`)
 - **DI registration:** Done in `Program.cs` via `builder.Services.AddScoped<ITaskRepository, TaskRepository>()`
-- **Database:** Entity Framework Core with SQLite (`Data/AppDbContext.cs`)
+- **Database:** Entity Framework Core with SQLite (`Data/AppDbContext.cs`), uses EF Core migrations (`Migrations/`)
 
 ## Commands
 - Build: `dotnet build TaskService.slnx`
